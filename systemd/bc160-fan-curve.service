@@ -1,0 +1,12 @@
+[Unit]
+Description=BC-160 custom fan curve
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/bc160-fan-curve.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

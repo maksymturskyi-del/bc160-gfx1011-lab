@@ -1,0 +1,12 @@
+# Known-good build intent for the baseline run.
+# Exact compiler/cache flags may differ by host.
+
+ROCM_PATH=/opt/therock-gfx1011-10.0.0
+CMAKE_PREFIX_PATH=/opt/therock-gfx1011-llama/install:/opt/therock-gfx1011-10.0.0
+
+-DGGML_HIP=ON
+-DCMAKE_HIP_ARCHITECTURES=gfx1011
+-DGGML_HIP_RCCL=OFF
+
+# Baseline run: FlashAttention disabled.
+# HSA_OVERRIDE_GFX_VERSION was NOT used.

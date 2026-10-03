@@ -1,0 +1,11 @@
+[Unit]
+Description=BC-160 runtime PM stability workaround
+After=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'DEV=/sys/bus/pci/devices/0000:03:00.0; echo on > "$DEV/power/control"; if [ -w "$DEV/d3cold_allowed" ]; then echo 0 > "$DEV/d3cold_allowed"; fi; sleep 12; echo on > "$DEV/power/control"; if [ -w "$DEV/d3cold_allowed" ]; then echo 0 > "$DEV/d3cold_allowed"; fi'
+
+[Install]
+WantedBy=multi-user.target

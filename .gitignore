@@ -1,0 +1,28 @@
+# Models
+*.gguf
+models/
+
+# Build trees
+build/
+build-*/
+CMakeFiles/
+CMakeCache.txt
+
+# Firmware / dumps
+*.rom
+*.fd
+*.bin
+*.cap
+*spi*dump*
+*vbios*
+
+# Large/transient logs
+*.log
+logs/
+telemetry/*.csv
+
+# Temp/editor
+*.swp
+*.tmp
+*~
+.DS_Store
