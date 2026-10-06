@@ -44,6 +44,7 @@ The path from “PCIe device appears” to stable LLM inference had several inde
 3. **HIP hostcall trap:** an unoptimized HIP test generated a `HiddenHostcallBuffer` and failed because PCIe atomics/hostcall were unavailable. Optimized ordinary compute without that hidden hostcall path worked.
 4. **Cooling policy:** stock firmware targeted very high temperature and kept the fan extremely slow. A quiet custom curve was added.
 5. **ROCm userspace dependency mismatch:** TheRock's rocBLAS build depended on `libhipblaslt.so.1`, while the gfx1011 family bundle did not ship hipBLASLt. Rebuilding rocBLAS without hipBLASLt fixed the `llama.cpp` loader path.
+6. **Early amdgpu bind timing:** on the later Omarchy setup, including amdgpu in the early initramfs/KMS path reduced PCI-enumeration-to-probe delay from ~4.7 s to ~0.02 s and correlated with an early PCIe retrain/AER failure. A test UKI that retained i915 but excluded early amdgpu restored the ~4.7 s delay and successful initialization.
 
 ## PCIe topology
 
@@ -156,8 +157,9 @@ These are **not peak-performance benchmarks**; they are sanity tests from a simp
 - [`docs/rocm-gfx1011.md`](docs/rocm-gfx1011.md) — HIP, hostcall, TheRock, rocBLAS workaround
 - [`docs/llama-cpp.md`](docs/llama-cpp.md) — working llama.cpp build/runtime path
 - [`docs/benchmarks.md`](docs/benchmarks.md) — benchmark history
+- [`docs/power-tuning.md`](docs/power-tuning.md) — power-cap, SCLK, and undervolt tuning status
 - [`results/`](results/) — concise result snapshots
 
 ## Status
 
-As of 2026-10-03, the BC-160 is stable for ROCm/HIP compute and `llama.cpp` inference on this host. Next work is performance tuning (MMQ, batch/ubatch, FlashAttention feasibility, quant comparison) rather than basic enablement.
+As of 2026-10-06, the BC-160 has a documented known-good daily boot path: i915 remains early, amdgpu is left out of the initramfs and loads later, the runtime-PM workaround stays enabled, and the custom fan service waits for late hwmon availability. Basic power-cap and SCLK tuning was tested; the current sysfs controls did not yield a useful undervolt/underclock path, so deeper PowerPlay/SMU tuning is deferred.
