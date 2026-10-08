@@ -1,6 +1,6 @@
 # BC-160 gfx1011 Lab
 
-Reproducible notes for running an **AMD BC-160 8 GB HBM2 (Navi12 / gfx1011)** as an external compute GPU on an **ASUS VivoBook X513EA (i5-1135G7)**, stabilizing PCIe/runtime power management, enabling ROCm/HIP compute, and reaching working `llama.cpp` inference.
+Reproducible notes for running an **AMD BC-160 8 GB HBM2 (Navi12 / gfx1011)** as an external compute and gaming GPU on an **ASUS VivoBook X513EA (i5-1135G7)**, stabilizing PCIe/runtime power management, enabling ROCm/HIP compute and `llama.cpp` inference, and using the BC-160 for game rendering while Intel i915 handles Gamescope/HDMI output.
 
 > **Current best LLM result**
 >
@@ -142,6 +142,23 @@ These are **not peak-performance benchmarks**; they are sanity tests from a simp
 - Max edge / hotspot / memory: **54 / 65 / 53 °C**
 - Fan remained at readback PWM ~77, ~677–688 RPM
 
+
+## Gaming / display pipeline
+
+The BC-160 is also validated as the render GPU for Steam/Proton games while the Intel iGPU remains the compositor/display GPU:
+
+```text
+Game / Proton
+    ↓
+BC-160 / RADV NAVI12
+    ↓
+Gamescope on Intel Iris Xe
+    ↓
+i915 / HDMI-A-1
+```
+
+Current recommended profile for this host is **1920×1080 game render → 2560×1440 Gamescope/HDMI output**. On Warframe this reduced temperature/noise and substantially reduced the small FPS dips seen with native 1440p rendering. See [`docs/gaming.md`](docs/gaming.md).
+
 ## Important caveats
 
 - The root-port path is still **Gen3 x2**, even though downstream links can report Gen4 x16. Do not interpret `16 GT/s x16` at the endpoint as host-to-GPU effective bandwidth.
@@ -158,8 +175,9 @@ These are **not peak-performance benchmarks**; they are sanity tests from a simp
 - [`docs/llama-cpp.md`](docs/llama-cpp.md) — working llama.cpp build/runtime path
 - [`docs/benchmarks.md`](docs/benchmarks.md) — benchmark history
 - [`docs/power-tuning.md`](docs/power-tuning.md) — power-cap, SCLK, and undervolt tuning status
+- [`docs/gaming.md`](docs/gaming.md) — Steam/Proton, Gamescope multi-GPU routing, gaming profile, and launcher notes
 - [`results/`](results/) — concise result snapshots
 
 ## Status
 
-As of 2026-10-06, the BC-160 has a documented known-good daily boot path: i915 remains early, amdgpu is left out of the initramfs and loads later, the runtime-PM workaround stays enabled, and the custom fan service waits for late hwmon availability. Basic power-cap and SCLK tuning was tested; the current sysfs controls did not yield a useful undervolt/underclock path, so deeper PowerPlay/SMU tuning is deferred.
+As of 2026-10-08, the BC-160 has a documented known-good daily boot path: i915 remains early, amdgpu is left out of the initramfs and loads later, the runtime-PM workaround stays enabled, and the custom fan service waits for late hwmon availability. ROCm/LLM compute is working, and the card is also validated for Steam/Proton gaming with BC-160 rendering and Intel Gamescope/HDMI output. The current gaming sweet spot on this Gen3 x2 host path is 1080p render → 1440p output. Basic power-cap and SCLK tuning was tested; the current sysfs controls did not yield a useful undervolt/underclock path, so deeper PowerPlay/SMU tuning remains deferred.
